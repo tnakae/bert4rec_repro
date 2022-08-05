@@ -1,0 +1,54 @@
+[tool.poetry]
+authors = ["Alexandr Petrov"]
+description = "aprec"
+license = "CONFIDENTIAL"
+name = "aprec"
+version = "1.0.1"
+
+[tool.poetry.dependencies]
+keras = "2.9.0"
+lightfm = "1.16"
+lightgbm = "3.3.2"
+mmh3 = "3.0.0"
+numpy = "1.23.1"
+pandas = "1.4.3"
+python = ">=3.9.0,<3.10.0"
+recbole = "1.0.1"
+scipy = "1.6.0"
+tensorflow = "2.9.1"
+torch = "1.12.0"
+tqdm = "4.64.0"
+transformers = "4.21.1"
+scikit-learn = "1.1.1"
+
+[tool.poetry.dev-dependencies]
+pycln = "^2.1.1"
+flake8 = "^5.0.4"
+mypy = "^0.971"
+isort = "^5.10.1"
+black = "^22.6.0"
+types-requests = "^2.28.7"
+types-python-dateutil = "^2.8.19"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+ensure_newline_before_comments = true
+force_grid_wrap = 0
+include_trailing_comma = true
+line_length = 88
+multi_line_output = 3
+use_parentheses = true
+
+[tool.isort]
+ensure_newline_before_comments = true
+force_grid_wrap = 0
+include_trailing_comma = true
+line_length = 88
+multi_line_output = 3
+use_parentheses = true
+
+[tool.pycln]
+all = true
