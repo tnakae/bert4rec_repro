@@ -1,4 +1,5 @@
 from tqdm import tqdm
+from typing import List, Optional, Set, Tuple, Union
 
 from aprec.api.action import Action
 from aprec.api.item import Item
@@ -7,48 +8,55 @@ from aprec.api.user import User
 
 
 class Recommender:
-    def __init__(self):
-        self.items_ranking_requests = []
-        self.val_users = set()
+    def __init__(self) -> None:
+        self.items_ranking_requests: List = []
+        self.val_users: Set = set()
 
-    def name(self):
+    def name(self) -> str:
         raise NotImplementedError
 
-    def add_action(self, action: Action):
-        raise (NotImplementedError)
+    def add_action(self, action: Action) -> None:
+        raise NotImplementedError
 
-    def rebuild_model(self):
-        raise (NotImplementedError)
+    def rebuild_model(self) -> None:
+        raise NotImplementedError
 
-    def recommend(self, user_id, limit: int, features=None):
-        raise (NotImplementedError)
+    def recommend(
+        self,
+        user_id: Union[str, int],
+        limit: int,
+        features: Optional[List[str]] = None
+    ) -> List[Tuple[Union[str, int], float]]:
+        raise NotImplementedError
 
     # recommendation request = tuple(user_id, features)
-    def recommend_batch(self, recommendation_requests, limit):
+    def recommend_batch(self,
+                        recommendation_requests: List[Tuple[Union[int, str], List[str]]],
+                        limit: int) -> List[List[Tuple[Union[str, int], float]]]:
         results = []
         for user_id, features in tqdm(recommendation_requests, ascii=True):
             results.append(self.recommend(user_id, limit, features))
         return results
 
     # many recommenders don't require users, so leave it doing nothing by default
-    def add_user(self, user: User):
+    def add_user(self, user: User) -> None:
         pass
 
     # many recommenders don't require items, so leave it doing nothing by default
-    def add_item(self, item: Item):
+    def add_item(self, item: Item) -> None:
         pass
 
     def recommend_by_items(self, items_list, limit: int):
-        raise (NotImplementedError)
+        raise NotImplementedError
 
     def get_similar_items(self, item_id, limit: int):
-        raise (NotImplementedError)
+        raise NotImplementedError
 
     def to_str(self):
-        raise (NotImplementedError)
+        raise NotImplementedError
 
     def from_str(self):
-        raise (NotImplementedError)
+        raise NotImplementedError
 
     # the directory where the recommender can save stuff, like logs
     def set_out_dir(self, out_dir):

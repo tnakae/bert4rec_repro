@@ -1,53 +1,77 @@
 from argparse import ArgumentParser
 from collections import defaultdict
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Callable, Dict, Iterable, List, Optional, Set, Union
 
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
 from aprec.api.action import Action
+from aprec.api.user_actions import UserActions
 
 from .datasets_register import DatasetsRegister
+
+MetricsFunction = Callable[
+    [UserActions, Set[Union[int, str]], List[int]],
+    Union[int, float]
+]
 
 pd.set_option("display.max_rows", None, "display.max_columns", None)
 pd.set_option("display.expand_frame_repr", False)
 pd.set_option("display.max_colwidth", 256)
 
 
-def num_users(users, items, session_lens):
+def num_users(users: UserActions,
+              items: Set[Union[int, str]],
+              session_lens: List[int]) -> int:
     return len(users)
 
 
-def num_items(users, items, session_lens):
+def num_items(users: UserActions,
+              items: Set[Union[int, str]],
+              session_lens: List[int]) -> int:
     return len(items)
 
 
-def num_interactions(users, items, session_lens):
+def num_interactions(users: UserActions,
+                     items: Set[Union[int, str]],
+                     session_lens: List[int]) -> int:
     return sum(session_lens)
 
 
-def average_session_len(users, items, session_lens):
+def average_session_len(users: UserActions,
+                        items: Set[Union[int, str]],
+                        session_lens: List[int]) -> float:
     return float(np.mean(session_lens))
 
 
-def median_session_len(users, items, session_lens):
+def median_session_len(users: UserActions,
+                       items: Set[Union[int, str]],
+                       session_lens: List[int]) -> int:
     return int(np.median(session_lens))
 
 
-def min_session_len(users, items, session_lens):
+def min_session_len(users: UserActions,
+                    items: Set[Union[int, str]],
+                    session_lens: List[int]) -> int:
     return int(np.min(session_lens))
 
 
-def max_session_len(users, items, session_lens):
+def max_session_len(users: UserActions,
+                    items: Set[Union[int, str]],
+                    session_lens: List[int]) -> int:
     return int(np.max(session_lens))
 
 
-def p80_session_len(user, items, session_lens):
+def p80_session_len(users: UserActions,
+                    items: Set[Union[int, str]],
+                    session_lens: List[int]) -> float:
     return float(np.percentile(session_lens, 80))
 
 
-def sparsity(users, items, session_lens) -> float:
+def sparsity(users: UserActions,
+             items: Set[Union[int, str]],
+             session_lens: List[int]) -> float:
     sum_interacted = 0
     for user in users:
         interacted_items = len(set(users[user]))
@@ -55,7 +79,7 @@ def sparsity(users, items, session_lens) -> float:
     return 1 - sum_interacted / (len(users) * len(items))
 
 
-all_metrics = {
+all_metrics: Dict[str, MetricsFunction] = {
     "num_users": num_users,
     "num_items": num_items,
     "num_interactions": num_interactions,
@@ -70,14 +94,14 @@ all_metrics = {
 
 def dataset_stats(
     dataset: Iterable[Action], metrics: List[str], dataset_name: Optional[str] = None
-) -> Dict[str, Any]:
-    users = defaultdict(list)
-    item_ids = set()
+) -> Dict[str, Union[int, float, str]]:
+    users: UserActions = defaultdict(list)
+    item_ids: Set[Union[int, str]] = set()
     for action in dataset:
         users[action.user_id].append(action)
         item_ids.add(action.item_id)
     session_lens = [len(users[user_id]) for user_id in users]
-    result = {}
+    result: Dict[str, Union[int, float, str]] = {}
     for metric in metrics:
         if metric not in all_metrics:
             raise Exception(f"unknown dataset metric: {metric}")
@@ -106,16 +130,16 @@ if __name__ == "__main__":
     parser.add_argument("--latex_table", required=False, default=False)
     args = parser.parse_args()
 
-    metrics = args.metrics.split(",")
-    datasets = args.datasets.split(",")
-    for dataset in datasets:
-        if dataset not in DatasetsRegister().all_datasets():
-            print(f"unknown dataset {dataset}")
+    metric_names: List[str] = args.metrics.split(",")
+    dataset_names: List[str] = args.datasets.split(",")
+    for dataset_name in dataset_names:
+        if dataset_name not in DatasetsRegister().all_datasets():
+            print(f"unknown dataset {dataset_name}")
             exit(1)
     docs = []
-    for dataset_name in tqdm(datasets):
-        dataset = DatasetsRegister()[dataset_name]()
-        stats = dataset_stats(dataset, metrics, dataset_name=dataset_name)
+    for dataset_name in tqdm(dataset_names):
+        dataset: Iterable[Action] = DatasetsRegister()[dataset_name]()
+        stats = dataset_stats(dataset, metric_names, dataset_name=dataset_name)
         docs.append(stats)
         del dataset
     df = pd.DataFrame(docs).set_index("name")

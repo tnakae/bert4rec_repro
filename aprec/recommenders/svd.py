@@ -72,10 +72,10 @@ class SvdRecommender(Recommender):
         return scores
 
     def get_similar_items(self, item_id, limit):
-        raise (NotImplementedError)
+        raise NotImplementedError
 
     def to_str(self):
-        raise (NotImplementedError)
+        raise NotImplementedError
 
     def from_str(self):
-        raise (NotImplementedError)
+        raise NotImplementedError

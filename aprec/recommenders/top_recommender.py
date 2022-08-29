@@ -1,19 +1,23 @@
 from collections import Counter
+from typing import Dict, List, Union
 
+from aprec.api.action import Action
 from aprec.recommenders.recommender import Recommender
 
 
 class TopRecommender(Recommender):
     def __init__(
-        self, recency=1.0
-    ):  # recency parameter controls how many actions are considered out of all actions
+        self,
+        recency: float = 1.0
+    ) -> None:
+        # recency parameter controls how many actions are considered out of all actions
         super().__init__()
-        self.items_counter = Counter()
-        self.item_scores = {}
-        self.actions = []
+        self.items_counter: Counter = Counter()
+        self.item_scores: Dict[Union[str, int], int] = {}
+        self.actions: List[Action] = []
         self.recency = recency
 
-    def add_action(self, action):
+    def add_action(self, action: Action):
         self.actions.append(action)
 
     def rebuild_model(self):

@@ -1,3 +1,5 @@
+from typing import List
+
 from aprec.api.action import Action
 from aprec.datasets.download_file import download_file
 
@@ -8,12 +10,12 @@ dataset = "ratings.csv"
 dir = "data/beauty"
 
 
-def get_beauty_dataset():
+def get_beauty_dataset() -> List[Action]:
     dataset_filename = download_file(dataset_url, dataset, dir)
     actions = []
     with open(dataset_filename) as input:
         for line in input:
             user, item, rating, timestamp = line.strip().split(",")
-            timestamp = int(timestamp)
-            actions.append(Action(user, item, timestamp))
+            timestamp_int = int(timestamp)
+            actions.append(Action(user, item, timestamp_int))
     return actions

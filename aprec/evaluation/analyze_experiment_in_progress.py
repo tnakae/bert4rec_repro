@@ -1,19 +1,22 @@
 import json
 import re
 import sys
+from typing import Any, Dict, List, TextIO
 
 import pandas as pd
+
+ResultDict = Dict[str, Any]
 
 pd.set_option("display.max_rows", None, "display.max_columns", None)
 pd.set_option("display.expand_frame_repr", False)
 pd.set_option("display.max_colwidth", 256)
 
 
-def is_experiment_start(line):
+def is_experiment_start(line: str) -> bool:
     return line.startswith("evaluating for")
 
 
-def skip_n_experiments(input_file, experiment_num):
+def skip_n_experiments(input_file: TextIO, experiment_num: int) -> None:
     current_experiment = 0
     while current_experiment < experiment_num:
         line = input_file.readline()
@@ -21,16 +24,17 @@ def skip_n_experiments(input_file, experiment_num):
             current_experiment += 1
 
 
-def get_metrics(line):
+def get_metrics(line: str) -> ResultDict:
     regexp = re.compile(r"[a-zA-Z0-9_]+\: [0-9\.\+\-eE]+")
-    result = {}
+    result: ResultDict = {}
     for metric_str in regexp.findall(line):
         metric, value = metric_str.split(": ")
         result[metric] = float(value)
     return result
 
 
-def get_metrics_internal(result, line):
+def get_metrics_internal(result: ResultDict,
+                         line: str) -> ResultDict:
     metrics = line.split(",")
     for metric in metrics:
         name, value = metric.split(":")
@@ -38,11 +42,11 @@ def get_metrics_internal(result, line):
     return result
 
 
-def parse_experiment(experiment_log):
+def parse_experiment(experiment_log: List[str]):
     current_recommender = None
-    result = []
-    cnt = 0
-    metrics = []
+    experiment_results: ResultDict = {}
+    result: List[ResultDict] = []
+    metrics: List[ResultDict] = []
     experiment_finished = True
     for line in experiment_log:
         if line.startswith("evaluating ") or line.startswith("!!!!!!!!!   evaluating"):
@@ -65,7 +69,7 @@ def parse_experiment(experiment_log):
             experiment_results["metrics_history"] = metrics
             result.append(experiment_results)
             experiment_finished = True
-        except:
+        except Exception:
             pass
     if not experiment_finished:
         experiment_results = {}
@@ -76,8 +80,7 @@ def parse_experiment(experiment_log):
     return result
 
 
-def get_data_from_logs(logfile, experiment_num):
-    current_experiment = 0
+def get_data_from_logs(logfile: str, experiment_num: int):
     with open(logfile) as input_file:
         skip_n_experiments(input_file, experiment_num)
         experiment_log = []
@@ -95,8 +98,9 @@ if __name__ == "__main__":
     else:
         experiment_logs_file = sys.argv[1]
     data = get_data_from_logs(experiment_logs_file, 0)
-    df = pd.DataFrame(data).set_index("model_name")
-    ranks = range(1, len(df) + 1)
+    df: pd.DataFrame = pd.DataFrame(data).set_index("model_name")
+    ranks = range(1, df.shape[0] + 1)
+    main_metric: str
     if len(sys.argv) > 2:
         main_metric = sys.argv[2]
     else:
@@ -108,12 +112,12 @@ if __name__ == "__main__":
     df.insert(loc=0, column=f"rank by {main_metric}", value=ranks)
     try:
         del df["model_metadata"]
-    except:
+    except Exception:
         pass
 
     try:
         del df["metrics_history"]
-    except:
+    except Exception:
         pass
 
     if "sampled_metrics" in df.columns:

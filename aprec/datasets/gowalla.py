@@ -18,10 +18,10 @@ def prepare_data() -> str:
     return unzipped_gowalla_file
 
 
-def parse_line(line) -> Action:
+def parse_line(line: str) -> Action:
     user_id, timestamp, lat, lon, item_id = line.split("\t")
-    timestamp = time.mktime(dateutil.parser.isoparse(timestamp).timetuple())
-    return Action(user_id, item_id, timestamp)
+    timestamp_int = int(time.mktime(dateutil.parser.isoparse(timestamp).timetuple()))
+    return Action(user_id, item_id, timestamp_int)
 
 
 def get_gowalla_dataset(max_actions: Optional[int] = None) -> Iterator[Action]:

@@ -10,7 +10,7 @@ from aprec.datasets.movielens20m import get_movielens20m_actions
 from aprec.datasets.movielens100k import get_movielens100k_actions
 
 
-class DatasetsRegister(object):
+class DatasetsRegister:
     _all_datasets: Dict[str, Callable[[], Iterable[Action]]] = {
         "BERT4rec.ml-1m": lambda: get_bert4rec_dataset("ml-1m"),
         "BERT4rec.steam": lambda: get_bert4rec_dataset("steam"),
@@ -28,7 +28,7 @@ class DatasetsRegister(object):
         "gowalla_warm10": lambda: filter_cold_users(get_gowalla_dataset(), 10),
     }
 
-    def __getitem__(self, item) -> Callable[[], Iterable[Action]]:
+    def __getitem__(self, item: str) -> Callable[[], Iterable[Action]]:
         if item not in DatasetsRegister._all_datasets:
             raise KeyError(f"The dataset {item} is not registered")
         return self._all_datasets[item]

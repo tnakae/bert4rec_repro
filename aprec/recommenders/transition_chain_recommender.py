@@ -1,7 +1,6 @@
 import math
 from collections import Counter, defaultdict
 
-import numpy as np
 from tqdm import tqdm
 
 from aprec.recommenders.recommender import Recommender

@@ -8,14 +8,10 @@ import time
 import traceback
 from collections import defaultdict
 
-import numpy as np
 from tqdm import tqdm
 
-from aprec import recommenders
-from aprec.api.items_ranking_request import ItemsRankingRequest
 from aprec.evaluation.evaluation_utils import group_by_user
 from aprec.evaluation.filter_cold_start import filter_cold_start
-from aprec.evaluation.metrics.sampled_proxy_metric import SampledProxy
 from aprec.evaluation.samplers.sampler import TargetItemSampler
 from aprec.utils.os_utils import mkdir_p
 

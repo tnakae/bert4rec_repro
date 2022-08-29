@@ -1,7 +1,7 @@
 from typing import List, Optional, Union
 
 
-class Item(object):
+class Item:
     item_id: Union[str, int]
     cat_features: List[str]
     real_features: List[str]

@@ -6,7 +6,7 @@ import requests
 from aprec.utils.os_utils import get_dir, mkdir_p_local
 
 
-def download_file(url, filename, data_dir) -> str:
+def download_file(url: str, filename: str, data_dir: str) -> str:
     mkdir_p_local(data_dir)
     full_filename = os.path.join(get_dir(), data_dir, filename)
     if not os.path.isfile(full_filename):
