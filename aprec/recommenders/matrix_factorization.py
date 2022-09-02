@@ -1,6 +1,6 @@
 import random
 from collections import defaultdict
-from typing import DefaultDict, List, Tuple, Union
+from typing import DefaultDict, List, Optional, Tuple, Union
 
 import numpy as np
 import tensorflow as tf
@@ -12,14 +12,13 @@ from keras.utils.data_utils import Sequence
 from scipy.sparse import csr_matrix
 
 from aprec.api.action import Action
+from aprec.api.user_actions import User
 from aprec.losses.get_loss import get_loss
 from aprec.recommenders.recommender import Recommender
 from aprec.utils.item_id import ItemId
 
 
 class MatrixFactorizationRecommender(Recommender):
-    user_actions: DefaultDict[int, List[int]]
-
     def __init__(
         self,
         embedding_size: int,
@@ -31,7 +30,7 @@ class MatrixFactorizationRecommender(Recommender):
     ):
         self.users = ItemId()
         self.items = ItemId()
-        self.user_actions = defaultdict(list)
+        self.user_actions: DefaultDict[int, List[int]] = defaultdict(list)
         self.embedding_size = embedding_size
         self.num_epochs = num_epochs
         self.loss = loss
@@ -84,7 +83,7 @@ class MatrixFactorizationRecommender(Recommender):
         self,
         user_id: Union[str, int],
         limit: int,
-        features: List[str] = None
+        features: Optional[List[str]] = None
     ) -> List[Tuple[Union[str, int], float]]:
         with tf.device("/cpu:0"):
             model_input = np.array([[self.users.get_id(user_id)]])
